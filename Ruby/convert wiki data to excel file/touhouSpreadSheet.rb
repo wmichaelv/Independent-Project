@@ -177,7 +177,6 @@ class ScreenScrapper
 	end
 
 	def find string
-		
 		for i in 0...self.rows.length do
 			if self.rows[i].css("td").length > 1
 				if self.rows[i].css("td")[0].text.strip == string
@@ -185,28 +184,34 @@ class ScreenScrapper
 				end
 			end if self.rows[i].css("td")
 		end
-
+		return "N/A"
 	end
 
 end
 
 excelFile = Axlsx::Package.new
-excelFile.workbook.add_worksheet(:name => "Basic Worksheet") do |sheet|
-  sheet.add_row ["Name", "Species", "Abilities", "Age", "Occupation", "Location"]
 
-	for i in 0...nameList.length do
+excelFile.workbook.add_worksheet(:name => "Species")    { |sheet| sheet.add_row ["Name", "Species"]    }
+excelFile.workbook.add_worksheet(:name => "Abilities")  { |sheet| sheet.add_row ["Name", "Abilities"]  }
+excelFile.workbook.add_worksheet(:name => "Age")        { |sheet| sheet.add_row ["Name", "Age"]        }
+excelFile.workbook.add_worksheet(:name => "Occupation") { |sheet| sheet.add_row ["Name", "Occupation"] }
+excelFile.workbook.add_worksheet(:name => "Location")   { |sheet| sheet.add_row ["Name", "Location"]   }
 
-		page = ScreenScrapper.new "http://touhou.wikia.com/wiki/#{nameList[i]}"
+for i in 0...nameList.length do
 
-		species = page.find "Species"
-		abilities = page.find "Abilities"
-		age = page.find "Age"
-		occupation = page.find "Occupation"
-		location = page.find "Location"
+	page = ScreenScrapper.new "http://touhou.wikia.com/wiki/#{nameList[i]}"
 
-		sheet.add_row [nameList[i], species, abilities, age, occupation, location]
+	species    = page.find "Species"
+	abilities  = page.find "Abilities"
+	age        = page.find "Age"
+	occupation = page.find "Occupation"
+	location   = page.find "Location"
 
-	end
+	excelFile.workbook.sheet_by_name("Species"   ).add_row [nameList[i], species]
+	excelFile.workbook.sheet_by_name("Abilities" ).add_row [nameList[i], abilities]
+	excelFile.workbook.sheet_by_name("Age"       ).add_row [nameList[i], age]
+	excelFile.workbook.sheet_by_name("Occupation").add_row [nameList[i], occupation]
+	excelFile.workbook.sheet_by_name("Location"  ).add_row [nameList[i], location]
 
 end
 
