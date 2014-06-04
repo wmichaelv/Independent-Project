@@ -187,33 +187,66 @@ class ScreenScrapper
 		return "N/A"
 	end
 
+	def findInside string
+		for i in 0...self.rows.length do
+			if self.rows[i].css("table").length == 1
+				if self.rows[i].css("td")[0].css("font").text.strip == string
+					return self.rows[i].css("td")[0].css("tr")[1].text.strip
+				end if self.rows[i].css("td")[0].css("font")
+			end if self.rows[i].css("table")
+		end
+		return "N/A"
+	end
+
 end
 
 excelFile = Axlsx::Package.new
 
-excelFile.workbook.add_worksheet(:name => "Species")    { |sheet| sheet.add_row ["Name", "Species"]    }
-excelFile.workbook.add_worksheet(:name => "Abilities")  { |sheet| sheet.add_row ["Name", "Abilities"]  }
-excelFile.workbook.add_worksheet(:name => "Age")        { |sheet| sheet.add_row ["Name", "Age"]        }
-excelFile.workbook.add_worksheet(:name => "Occupation") { |sheet| sheet.add_row ["Name", "Occupation"] }
-excelFile.workbook.add_worksheet(:name => "Location")   { |sheet| sheet.add_row ["Name", "Location"]   }
+excelFile.workbook.add_worksheet(:name => "Species"      ) { |sheet| sheet.add_row ["Name", "Species"      ] }
+excelFile.workbook.add_worksheet(:name => "Abilities"    ) { |sheet| sheet.add_row ["Name", "Abilities"    ] }
+excelFile.workbook.add_worksheet(:name => "Age"          ) { |sheet| sheet.add_row ["Name", "Age"          ] }
+excelFile.workbook.add_worksheet(:name => "Occupation"   ) { |sheet| sheet.add_row ["Name", "Occupation"   ] }
+excelFile.workbook.add_worksheet(:name => "Location"     ) { |sheet| sheet.add_row ["Name", "Location"     ] }
+excelFile.workbook.add_worksheet(:name => "Description"  ) { |sheet| sheet.add_row ["Name", "Description"  ] }
+excelFile.workbook.add_worksheet(:name => "Relationships") { |sheet| sheet.add_row ["Name", "Relationships"] }
+excelFile.workbook.add_worksheet(:name => "Appearances"  ) { |sheet| sheet.add_row ["Name", "Appearances"  ] }
+excelFile.workbook.add_worksheet(:name => "Titles"       ) { |sheet| sheet.add_row ["Name", "Titles"       ] }
 
 for i in 0...nameList.length do
 
 	page = ScreenScrapper.new "http://touhou.wikia.com/wiki/#{nameList[i]}"
 
-	species    = page.find "Species"
-	abilities  = page.find "Abilities"
-	age        = page.find "Age"
-	occupation = page.find "Occupation"
-	location   = page.find "Location"
+	species       = page.find       "Species"
+	abilities     = page.find       "Abilities"
+	age           = page.find       "Age"
+	occupation    = page.find       "Occupation"
+	location      = page.find       "Location"
+	description   = page.findInside "Description"
+	relationships = page.findInside "Relationships"
+	appearances   = page.findInside "Appearances"
+	titles        = page.findInside "Titles"
 
-	excelFile.workbook.sheet_by_name("Species"   ).add_row [nameList[i], species]
-	excelFile.workbook.sheet_by_name("Abilities" ).add_row [nameList[i], abilities]
-	excelFile.workbook.sheet_by_name("Age"       ).add_row [nameList[i], age]
-	excelFile.workbook.sheet_by_name("Occupation").add_row [nameList[i], occupation]
-	excelFile.workbook.sheet_by_name("Location"  ).add_row [nameList[i], location]
+	excelFile.workbook.sheet_by_name("Species"      ).add_row [nameList[i], species      ]
+	excelFile.workbook.sheet_by_name("Abilities"    ).add_row [nameList[i], abilities    ]
+	excelFile.workbook.sheet_by_name("Age"          ).add_row [nameList[i], age          ]
+	excelFile.workbook.sheet_by_name("Occupation"   ).add_row [nameList[i], occupation   ]
+	excelFile.workbook.sheet_by_name("Location"     ).add_row [nameList[i], location     ]
+	excelFile.workbook.sheet_by_name("Description"  ).add_row [nameList[i], description  ]
+	excelFile.workbook.sheet_by_name("Relationships").add_row [nameList[i], relationships]
+	excelFile.workbook.sheet_by_name("Appearances"  ).add_row [nameList[i], appearances  ]
+	excelFile.workbook.sheet_by_name("Titles"       ).add_row [nameList[i], titles       ]
+
+	p nameList[i]
+	p abilities
+	p age
+	p occupation
+	p location
+	p description
+	p relationships
+	p appearances
+	p titles
 
 end
 
 excelFile.use_shared_strings = true
-excelFile.serialize('touhouSpreadSheet.xlsx')
+excelFile.serialize('touhouSpreadSheet.xlsx') if I_want_to_make_xls_file_with_this
