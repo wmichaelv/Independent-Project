@@ -67,7 +67,7 @@ nameList = [
 "Chen",
 "Alice_Margatroid",
 "Lily_White",
-"Prismriver_Sisters",
+#"Prismriver_Sisters",
 "Lunasa_Prismriver",
 "Merlin_Prismriver",
 "Lyrica_Prismriver",
@@ -164,6 +164,40 @@ nameList = [
 "Kosuzu_Motoori"
 ]
 
+gameList = [
+"1", 
+"2", 
+"3", 
+"4", 
+"5", 
+"6", 
+"7", 
+"7.5", 
+"8", 
+"9", 
+"9.5", 
+"10", 
+"10.5", 
+"11", 
+"12", 
+"12.3", 
+"12.5", 
+"12.8", 
+"13", 
+"13.5", 
+"14", 
+"14.3"
+]
+
+duplicateNote = {
+"Lunasa_Prismriver" => 0,
+"Merlin_Prismriver" => 1,
+"Lyrica_Prismriver" => 2,
+"Sunny_Milk"        => 0,
+"Luna_Child"        => 1,
+"Star_Sapphire"     => 2
+}
+
 class ScreenScrapper
 
 	attr_accessor :document
@@ -200,17 +234,34 @@ class ScreenScrapper
 
 end
 
+def checkAge string
+	if string.match /\D+/
+		if string == "Unknown"
+			age  = "N/A"
+			note = "N/A"
+		else
+			age  = string[/\d+/]
+			note = string
+		end
+	else		
+		age  = string
+		note = "N/A"
+	end
+	return [age, note]
+end
+
 excelFile = Axlsx::Package.new
 
-excelFile.workbook.add_worksheet(:name => "Species"      ) { |sheet| sheet.add_row ["Name", "Species"      ] }
-excelFile.workbook.add_worksheet(:name => "Abilities"    ) { |sheet| sheet.add_row ["Name", "Abilities"    ] }
-excelFile.workbook.add_worksheet(:name => "Age"          ) { |sheet| sheet.add_row ["Name", "Age"          ] }
-excelFile.workbook.add_worksheet(:name => "Occupation"   ) { |sheet| sheet.add_row ["Name", "Occupation"   ] }
-excelFile.workbook.add_worksheet(:name => "Location"     ) { |sheet| sheet.add_row ["Name", "Location"     ] }
-excelFile.workbook.add_worksheet(:name => "Description"  ) { |sheet| sheet.add_row ["Name", "Description"  ] }
-excelFile.workbook.add_worksheet(:name => "Relationships") { |sheet| sheet.add_row ["Name", "Relationships"] }
-excelFile.workbook.add_worksheet(:name => "Appearances"  ) { |sheet| sheet.add_row ["Name", "Appearances"  ] }
-excelFile.workbook.add_worksheet(:name => "Titles"       ) { |sheet| sheet.add_row ["Name", "Titles"       ] }
+excelFile.workbook.add_worksheet(:name => "..."          ) { |sheet| sheet.add_row ["Name", 
+	                                                                                  "Species", 
+	                                                                                  "Age",
+	                                                                                  "Age Note", 
+	                                                                                  "Occupation", 
+	                                                                                  "Location"] }
+excelFile.workbook.add_worksheet(:name => "Description"  ) { |sheet| sheet.add_row  "Name" | gameList | "Misc." }
+excelFile.workbook.add_worksheet(:name => "Relationships") { |sheet| sheet.add_row  "Name" | nameList | "Misc." }
+excelFile.workbook.add_worksheet(:name => "Appearances"  ) { |sheet| sheet.add_row  "Name" | gameList | "Misc." }
+excelFile.workbook.add_worksheet(:name => "Titles"       ) { |sheet| sheet.add_row  "Name" | gameList | "Misc." }
 
 for i in 0...nameList.length do
 
@@ -226,11 +277,21 @@ for i in 0...nameList.length do
 	appearances   = page.findInside "Appearances"
 	titles        = page.findInside "Titles"
 
-	excelFile.workbook.sheet_by_name("Species"      ).add_row [nameList[i], species      ]
-	excelFile.workbook.sheet_by_name("Abilities"    ).add_row [nameList[i], abilities    ]
-	excelFile.workbook.sheet_by_name("Age"          ).add_row [nameList[i], age          ]
-	excelFile.workbook.sheet_by_name("Occupation"   ).add_row [nameList[i], occupation   ]
-	excelFile.workbook.sheet_by_name("Location"     ).add_row [nameList[i], location     ]
+  # Check For Duplication
+	if duplicateNote.include? nameList[i]
+		abilities  =  abilities.lines.map(&:chomp)[duplicateNote[nameList[i]]]
+		occupation = occupation.lines.map(&:chomp)[duplicateNote[nameList[i]]]
+	end
+
+	age, ageNote = checkAge age
+
+	excelFile.workbook.sheet_by_name("..."      ).add_row [nameList[i], 
+	                                                       species, 
+	                                                       age,
+	                                                       ageNote, 
+	                                                       occupation, 
+	                                                       location]
+
 	excelFile.workbook.sheet_by_name("Description"  ).add_row [nameList[i], description  ]
 	excelFile.workbook.sheet_by_name("Relationships").add_row [nameList[i], relationships]
 	excelFile.workbook.sheet_by_name("Appearances"  ).add_row [nameList[i], appearances  ]
