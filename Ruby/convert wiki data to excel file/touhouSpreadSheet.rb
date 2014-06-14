@@ -1,6 +1,6 @@
 
 #============================================#
-#  Voltorn touhou.wikia screen scrapper      #
+#  Voltorn/Mike touhou.wikia screen scrapper #
 #  how to use: (windows)                     #
 #    Command line: ruby touhouSpreadSheet.rb #
 #                                            #
@@ -11,6 +11,18 @@
 #   setKey   (method)                        #
 #   nil_to_s (method)                        #
 #============================================#
+# Methods Declared:                          #
+#   separateIntoLines                        #
+#   proofreadName                            #
+#   proofreadSpecies                         #
+#   proofreadAbilities                       #
+#   proofreadAge                             #
+#   proofreadOccupation                      #
+#   proofreadLocation                        #
+#   proofreadDescription                     #
+#   proofreadRelationships                   #
+#   proofreadAppearances                     #
+#   proofreadTitles                          #
 #                                            #
 #============================================#
 
