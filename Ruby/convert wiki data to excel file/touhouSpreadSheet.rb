@@ -190,13 +190,30 @@ gameList = [
 ]
 
 duplicateNote = {
-"Lunasa_Prismriver" => 0,
-"Merlin_Prismriver" => 1,
-"Lyrica_Prismriver" => 2,
-"Sunny_Milk"        => 0,
-"Luna_Child"        => 1,
-"Star_Sapphire"     => 2
+	"Lunasa_Prismriver" => 0,
+	"Merlin_Prismriver" => 1,
+	"Lyrica_Prismriver" => 2,
+	"Sunny_Milk"        => 0,
+	"Luna_Child"        => 1,
+	"Star_Sapphire"     => 2
 }
+
+def separateByCommas string
+	counter = 0
+	for i in 0...string.length do
+		case string[i]
+		when '('; counter += 1
+		when ')'; counter -= 1
+		when ','; string.insert i + 1, "\n" if counter == 0
+		end
+	end
+	counter = nil
+	string.gsub!(",\n", "\n")
+	string.gsub!("\n ", "\n")
+	string
+end
+
+
 
 class ScreenScrapper
 
@@ -281,17 +298,7 @@ for i in 0...nameList.length do
 	titles        = page.findInside "Titles"
 
 	# Divide abilities into multiple lines
-counter = 0
-for i in 0...abilities.length do
-	case abilities[i]
-	when '('; counter += 1
-	when ')'; counter -= 1
-	when ','; abilities.insert i + 1, "\n" if counter == 0
-	end
-end
-counter = nil
-abilities.gsub!(",\n", "\n")
-abilities.gsub!("\n ", "\n")
+	abilities = separateByCommas abilities unless abilities.nil?
 
   # Check For Duplication
 	if duplicateNote.include? nameList[i]
