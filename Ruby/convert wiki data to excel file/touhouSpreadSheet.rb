@@ -5,194 +5,203 @@
 #    Command line: ruby touhouSpreadSheet.rb #
 #                                            #
 #============================================#
+# Overloaded Class:                          #
+#  - Hash :                                  #
+#   resetKey (method)                        #
+#   setKey   (method)                        #
+#   nil_to_s (method)                        #
+#============================================#
+#                                            #
+#============================================#
 
 require 'axlsx'    #gem install axlsx - for xls file
 require 'nokogiri' #gem install nokogiri
 require 'open-uri' #build-in
 
 I_want_to_make_xls_file_with_this = true
-
 NameListAry = [
-#Main Characters
-"Reimu_Hakurei",
-"Marisa_Kirisame",
-#Highly_Responsive_to_Prayers
-"Shingyoku",
-"YuugenMagan",
-"Mima",
-"Elis",
-"Kikuri",
-"Konngara",
-"Sariel",
-#Story_of_Eastern_Wonderland
-"Genjii",
-"Rika",
-"Meira",
-#Phantasmagoria_of_Dim._Dream
-"Ellen",
-"Kotohime",
-"Kana_Anaberal",
-"Rikako_Asakura",
-"Chiyuri_Kitashirakawa",
-"Yumemi_Okazaki",
-"Ruukoto",
-#Lotus_Land_Story
-"Orange",
-"Kurumi",
-"Elly",
-"Yuuka",
-"Mugetsu",
-"Gengetsu",
-#Mystic_Square
-"Sara",
-"Louise",
-"Alice",
-"Yuki",
-"Mai",
-"Yumeko",
-"Shinki",
-#The_Embodiment_of_Scarlet_Devil
-"Rumia",
-"Daiyousei",
-"Cirno",
-"Hong_Meirin",
-"Koakuma",
-"Patchouli_Knowledge",
-"Sakuya_Izayoi",
-"Remilia_Scarlet",
-"Flandre_Scarlet",
-"Rin_Satsuki",
-#Perfect_Cherry_Blossom
-"Letty_Whiterock",
-"Chen",
-"Alice_Margatroid",
-"Lily_White",
-#"Prismriver_Sisters",
-"Lunasa_Prismriver",
-"Merlin_Prismriver",
-"Lyrica_Prismriver",
-"Youmu_Konpaku",
-"Yuyuko_Saigyouji",
-"Ran_Yakumo",
-"Yukari_Yakumo",
-#Immaterial_and_Missing_Power
-"Suika_Ibuki",
-#Imperishable_Night
-"Wriggle_Nightbug",
-"Mystia_Lorelei",
-"Keine_Kamishirasawa",
-"Tewi_Inaba",
-"Reisen_Udongein_Inaba",
-"Eirin_Yagokoro",
-"Kaguya_Houraisan",
-"Fujiwara_no_Mokou",
-#Phantasmagoria_of_Flower_View
-"Aya_Shameimaru",
-"Medicine_Melancholy",
-"Yuka_Kazami",
-"Komachi_Onozuka",
-"Shikieiki_Yamaxanadu",
-#Mountain_of_Faith
-"Shizuha_Aki",
-"Minoriko_Aki",
-"Hina_Kagiyama",
-"Nitori_Kawashiro",
-"Momiji_Inubashiri",
-"Sanae_Kochiya",
-"Kanako_Yasaka",
-"Suwako_Moriya",
-#Scarlet_Weather_Rhapsody
-"Iku_Nagae",
-"Tenshi_Hinanawi",
-#Subterranean_Animism
-"Kisume",
-"Yamame_Kurodani",
-"Parsee_Mizuhashi",
-"Yuugi_Hoshiguma",
-"Satori_Komeiji",
-"Rin_Kaenbyou",
-"Utsuho_Reiuji",
-"Koishi_Komeiji",
-#Undefined_Fantastic_Object
-"Nazrin",
-"Kogasa_Tatara",
-"Ichirin_Kumoi",
-"Unzan",
-"Minamitsu_Murasa",
-"Shou_Toramaru",
-"Byakuren_Hijiri",
-"Nue_Houjuu",
-#Touhou_Hisotensoku
-"Unnamed_Giant_Catfish",
-#Double_Spoiler
-"Hatate_Himekaidou",
-#Fairy_Wars
-"Sunny_Milk",
-"Luna_Child",
-"Star_Sapphire",
-#Ten_Desires
-"Kyouko_Kasodani",
-"Yoshika_Miyako",
-"Seiga_Kaku",
-"Soga_no_Tojiko",
-"Mononobe_no_Futo",
-"Toyosatomimi_no_Miko",
-"Mamizou_Futatsuiwa",
-#Hopeless_Masquerade
-"Hata_no_Kokoro",
-#Double_Dealing_Character
-"Wakasagihime",
-"Sekibanki",
-"Kagerou_Imaizumi",
-"Benben_Tsukumo",
-"Yatsuhashi_Tsukumo",
-"Seija_Kijin",
-"Shinmyoumaru_Sukuna",
-"Raiko_Horikawa",
-#Other_Characters
-"Rinnosuke_Morichika",
-"Tokiko",
-"Renko_Usami",
-"Maribel_Han", #Maribel_Hearn or Maribel_Han
-"Hieda_no_Akyu",
-"Shanghai",
-"Hourai",
-"Reisen",
-"Watatsuki_no_Toyohime",
-"Watatsuki_no_Yorihime",
-"Kasen_Ibara",
-"Kosuzu_Motoori"
+	#Main Characters
+	"Reimu_Hakurei",
+	"Marisa_Kirisame",
+	#Highly_Responsive_to_Prayers
+	"Shingyoku",
+	"YuugenMagan",
+	"Mima",
+	"Elis",
+	"Kikuri",
+	"Konngara",
+	"Sariel",
+	#Story_of_Eastern_Wonderland
+	"Genjii",
+	"Rika",
+	"Meira",
+	#Phantasmagoria_of_Dim._Dream
+	"Ellen",
+	"Kotohime",
+	"Kana_Anaberal",
+	"Rikako_Asakura",
+	"Chiyuri_Kitashirakawa",
+	"Yumemi_Okazaki",
+	"Ruukoto",
+	#Lotus_Land_Story
+	"Orange",
+	"Kurumi",
+	"Elly",
+	"Yuuka",
+	"Mugetsu",
+	"Gengetsu",
+	#Mystic_Square
+	"Sara",
+	"Louise",
+	"Alice",
+	"Yuki",
+	"Mai",
+	"Yumeko",
+	"Shinki",
+	#The_Embodiment_of_Scarlet_Devil
+	"Rumia",
+	"Daiyousei",
+	"Cirno",
+	"Hong_Meirin",
+	"Koakuma",
+	"Patchouli_Knowledge",
+	"Sakuya_Izayoi",
+	"Remilia_Scarlet",
+	"Flandre_Scarlet",
+	"Rin_Satsuki",
+	#Perfect_Cherry_Blossom
+	"Letty_Whiterock",
+	"Chen",
+	"Alice_Margatroid",
+	"Lily_White",
+	#"Prismriver_Sisters",
+	"Lunasa_Prismriver",
+	"Merlin_Prismriver",
+	"Lyrica_Prismriver",
+	"Youmu_Konpaku",
+	"Yuyuko_Saigyouji",
+	"Ran_Yakumo",
+	"Yukari_Yakumo",
+	#Immaterial_and_Missing_Power
+	"Suika_Ibuki",
+	#Imperishable_Night
+	"Wriggle_Nightbug",
+	"Mystia_Lorelei",
+	"Keine_Kamishirasawa",
+	"Tewi_Inaba",
+	"Reisen_Udongein_Inaba",
+	"Eirin_Yagokoro",
+	"Kaguya_Houraisan",
+	"Fujiwara_no_Mokou",
+	#Phantasmagoria_of_Flower_View
+	"Aya_Shameimaru",
+	"Medicine_Melancholy",
+	"Yuka_Kazami",
+	"Komachi_Onozuka",
+	"Shikieiki_Yamaxanadu",
+	#Mountain_of_Faith
+	"Shizuha_Aki",
+	"Minoriko_Aki",
+	"Hina_Kagiyama",
+	"Nitori_Kawashiro",
+	"Momiji_Inubashiri",
+	"Sanae_Kochiya",
+	"Kanako_Yasaka",
+	"Suwako_Moriya",
+	#Scarlet_Weather_Rhapsody
+	"Iku_Nagae",
+	"Tenshi_Hinanawi",
+	#Subterranean_Animism
+	"Kisume",
+	"Yamame_Kurodani",
+	"Parsee_Mizuhashi",
+	"Yuugi_Hoshiguma",
+	"Satori_Komeiji",
+	"Rin_Kaenbyou",
+	"Utsuho_Reiuji",
+	"Koishi_Komeiji",
+	#Undefined_Fantastic_Object
+	"Nazrin",
+	"Kogasa_Tatara",
+	"Ichirin_Kumoi",
+	"Unzan",
+	"Minamitsu_Murasa",
+	"Shou_Toramaru",
+	"Byakuren_Hijiri",
+	"Nue_Houjuu",
+	#Touhou_Hisotensoku
+	"Unnamed_Giant_Catfish",
+	#Double_Spoiler
+	"Hatate_Himekaidou",
+	#Fairy_Wars
+	"Sunny_Milk",
+	"Luna_Child",
+	"Star_Sapphire",
+	#Ten_Desires
+	"Kyouko_Kasodani",
+	"Yoshika_Miyako",
+	"Seiga_Kaku",
+	"Soga_no_Tojiko",
+	"Mononobe_no_Futo",
+	"Toyosatomimi_no_Miko",
+	"Mamizou_Futatsuiwa",
+	#Hopeless_Masquerade
+	"Hata_no_Kokoro",
+	#Double_Dealing_Character
+	"Wakasagihime",
+	"Sekibanki",
+	"Kagerou_Imaizumi",
+	"Benben_Tsukumo",
+	"Yatsuhashi_Tsukumo",
+	"Seija_Kijin",
+	"Shinmyoumaru_Sukuna",
+	"Raiko_Horikawa",
+	#Other_Characters
+	"Rinnosuke_Morichika",
+	"Tokiko",
+	"Renko_Usami",
+	"Maribel_Han", #Maribel_Hearn or Maribel_Han
+	"Hieda_no_Akyu",
+	"Shanghai",
+	"Hourai",
+	"Reisen",
+	"Watatsuki_no_Toyohime",
+	"Watatsuki_no_Yorihime",
+	"Kasen_Ibara",
+	"Kosuzu_Motoori"
 ]
 
 GameListAry = [
-"1", 
-"2", 
-"3", 
-"4", 
-"5", 
-"6", 
-"7", 
-"7.5", 
-"8", 
-"9", 
-"9.5", 
-"10", 
-"10.5", 
-"11", 
-"12", 
-"12.3", 
-"12.5", 
-"12.8", 
-"13", 
-"13.5", 
-"14", 
-"14.3"
+	"1", 
+	"2", 
+	"3", 
+	"4", 
+	"5", 
+	"6", 
+	"7", 
+	"7.5", 
+	"8", 
+	"9", 
+	"9.5", 
+	"10", 
+	"10.5", 
+	"11", 
+	"12", 
+	"12.3", 
+	"12.5", 
+	"12.8", 
+	"13", 
+	"13.5", 
+	"14", 
+	"14.3"
 ]
 
 NameListHash = Hash.new
-for i in NameListAry do NameListHash[i] = nil end
+for i in NameListAry do NameListHash[i.gsub /_/, ' '] = nil end
+NameListHash["Misc."] = nil
 GameListHash = Hash.new
-for i in GameListAry do GameListHash[i] = nil end
+for i in GameListAry do GameListHash[i.gsub /_/, ' '] = nil end
+GameListHash["Misc."] = nil
 
 DuplicateNote = {
 	"Lunasa_Prismriver" => 0,
@@ -207,18 +216,13 @@ def separateIntoLines string
 	unless string.nil?
 	  counter = 0
 	  string = string.chars.map do |char|
-	    output_char = char
-	    case char
-	    when '('; output_char = "\n(" if counter == 0; counter += 1
-	    when ')'; counter -= 1
-	    when ','; output_char = "\n" if counter == 0
-	    when ';'; output_char = "\n"
-	    when '.'; output_char = "\n"
-	    end
-	    output_char
-	  end.join
+	    next "\n" if char == ',' and counter == 0
+	    next "\n" if char == ';' or char == '.'
+			counter += 1 if char == '('
+  		counter -= 1 if char == ')'
+			char
+	  end.join.lines.map(&:lstrip).join
 	  counter = nil
-	  string.gsub! "\n ", "\n"
 	end
   string
 end
@@ -280,9 +284,36 @@ def proofreadDescription wb, name, string
 end
 
 def proofreadRelationships wb, name, string
-	nameListDup = Hash.new
-	for 
+	NameListHash.resetKey
+	if string != "Unknown"
+		string.lines.map(&:chomp).each do |ln|
+			next if ln.nil?
+			next if ln == "Unknown"
+			if ln[/\S.*?(?=[(])/].nil?
+				ch = "nope"
+				re = "nope"
+			else
+  			ch = ln[/\S.*?(?=[(])/].rstrip
+  			re = ln[/(?<=[(]).*?(?=[)])/]
+  		end
+  		ch = "Yuuka"             if ch == "Yuuka Kazami"
+  		ch = "Hong Meirin"       if ch == "Hong Meiling" 
+  		ch = "Lunasa Prismriver" if ch == "Lunasa"
+  		ch = "Merlin Prismriver" if ch == "Merlin"
+  		ch = "Lyrica Prismriver" if ch == "Lyrica"
 
+  		#I hate this one
+  		if ch == "Lunasa, Lyrica, and Merlin Prismriver"
+  			NameListHash.setKey "Lunasa Prismriver", "Misc.", re, ln
+  			NameListHash.setKey "Merlin Prismriver", "Misc.", re, ln
+  			NameListHash.setKey "Lyrica Prismriver", "Misc.", re, ln
+  			next
+  		end
+
+			NameListHash.setKey ch, "Misc.", re, ln
+		end
+	end
+	string = NameListHash.nil_to_s.values
 	string
 end
 
@@ -328,6 +359,31 @@ class ScreenScrapper
 		return "N/A"
 	end
 
+end
+
+class Hash
+	def resetKey
+		self.each_key {|k| self[k] = nil}
+		self
+	end
+	def setKey key, defaultKey, value, string
+		if self.has_key? key
+			self[key] = value
+			return key
+		else
+			if self[defaultKey].nil?
+				self[defaultKey] = string
+			else
+				self[defaultKey] += ("\n" + string)
+			end
+			return defaultKey
+		end
+	end
+
+	def nil_to_s
+		self.each_key {|k| self[k] ||= "N/A"}
+		self
+	end
 end
 
 excelFile = Axlsx::Package.new
@@ -379,10 +435,10 @@ for i in 0...NameListAry.length do
 	                                                           occupation, 
 	                                                           location], :widths => [21, 28, 73, 5, 70, 30, 50]
 
-	excelFile.workbook.sheet_by_name("Description"  ).add_row [name, description  ]
-	excelFile.workbook.sheet_by_name("Relationships").add_row [name, relationships]
-	excelFile.workbook.sheet_by_name("Appearances"  ).add_row [name, appearances  ]
-	excelFile.workbook.sheet_by_name("Titles"       ).add_row [name, titles       ]
+	excelFile.workbook.sheet_by_name("Description"  ).add_row [name] + [description  ]
+	excelFile.workbook.sheet_by_name("Relationships").add_row [name] +  relationships
+	excelFile.workbook.sheet_by_name("Appearances"  ).add_row [name] + [appearances  ]
+	excelFile.workbook.sheet_by_name("Titles"       ).add_row [name] + [titles       ]
 
 	p name
 	p abilities
