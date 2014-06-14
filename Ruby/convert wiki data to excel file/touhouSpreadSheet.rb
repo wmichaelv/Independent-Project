@@ -240,33 +240,36 @@ def checkAge string
 			age  = "N/A"
 			note = "N/A"
 		else
-			age  = string[/\d+/]
+			age  = string.gsub(',', '')[/\d+/]
 			note = string
 		end
 	else		
 		age  = string
 		note = "N/A"
 	end
+	age = "N/A" if age.nil?
 	return [age, note]
 end
 
 excelFile = Axlsx::Package.new
 
 excelFile.workbook.add_worksheet(:name => "..."          ) { |sheet| sheet.add_row ["Name", 
-	                                                                                  "Species", 
+	                                                                                  "Species",
+	                                                                                  "Abilities", 
 	                                                                                  "Age",
 	                                                                                  "Age Note", 
 	                                                                                  "Occupation", 
 	                                                                                  "Location"] }
-excelFile.workbook.add_worksheet(:name => "Description"  ) { |sheet| sheet.add_row  "Name" | gameList | "Misc." }
-excelFile.workbook.add_worksheet(:name => "Relationships") { |sheet| sheet.add_row  "Name" | nameList | "Misc." }
-excelFile.workbook.add_worksheet(:name => "Appearances"  ) { |sheet| sheet.add_row  "Name" | gameList | "Misc." }
-excelFile.workbook.add_worksheet(:name => "Titles"       ) { |sheet| sheet.add_row  "Name" | gameList | "Misc." }
+excelFile.workbook.add_worksheet(:name => "Description"  ) { |sheet| sheet.add_row  ["Name"] | gameList | ["Misc."] }
+excelFile.workbook.add_worksheet(:name => "Relationships") { |sheet| sheet.add_row  ["Name"] | nameList | ["Misc."] }
+excelFile.workbook.add_worksheet(:name => "Appearances"  ) { |sheet| sheet.add_row  ["Name"] | gameList | ["Misc."] }
+excelFile.workbook.add_worksheet(:name => "Titles"       ) { |sheet| sheet.add_row  ["Name"] | gameList | ["Misc."] }
 
 for i in 0...nameList.length do
 
 	page = ScreenScrapper.new "http://touhou.wikia.com/wiki/#{nameList[i]}"
 
+	name          = nameList[i].gsub(/_/, ' ')
 	species       = page.find       "Species"
 	abilities     = page.find       "Abilities"
 	age           = page.find       "Age"
@@ -277,29 +280,44 @@ for i in 0...nameList.length do
 	appearances   = page.findInside "Appearances"
 	titles        = page.findInside "Titles"
 
+	# Divide abilities into multiple lines
+counter = 0
+for i in 0...abilities.length do
+	case abilities[i]
+	when '('; counter += 1
+	when ')'; counter -= 1
+	when ','; abilities.insert i + 1, "\n" if counter == 0
+	end
+end
+counter = nil
+abilities.gsub!(",\n", "\n")
+abilities.gsub!("\n ", "\n")
+
   # Check For Duplication
 	if duplicateNote.include? nameList[i]
-		abilities  =  abilities.lines.map(&:chomp)[duplicateNote[nameList[i]]]
-		occupation = occupation.lines.map(&:chomp)[duplicateNote[nameList[i]]]
+		abilities  =  abilities.lines.map(&:chomp)[duplicateNote[nameList[i]]].partition(': ').last
+		occupation = occupation.lines.map(&:chomp)[duplicateNote[nameList[i]]].partition(': ').last
 	end
 
 	age, ageNote = checkAge age
 
-	excelFile.workbook.sheet_by_name("..."      ).add_row [nameList[i], 
-	                                                       species, 
-	                                                       age,
-	                                                       ageNote, 
-	                                                       occupation, 
-	                                                       location]
+	excelFile.workbook.sheet_by_name("..."          ).add_row [name, 
+	                                                           species, 
+	                                                           abilities,
+	                                                           age,
+	                                                           ageNote, 
+	                                                           occupation, 
+	                                                           location]
 
-	excelFile.workbook.sheet_by_name("Description"  ).add_row [nameList[i], description  ]
-	excelFile.workbook.sheet_by_name("Relationships").add_row [nameList[i], relationships]
-	excelFile.workbook.sheet_by_name("Appearances"  ).add_row [nameList[i], appearances  ]
-	excelFile.workbook.sheet_by_name("Titles"       ).add_row [nameList[i], titles       ]
+	excelFile.workbook.sheet_by_name("Description"  ).add_row [name, description  ]
+	excelFile.workbook.sheet_by_name("Relationships").add_row [name, relationships]
+	excelFile.workbook.sheet_by_name("Appearances"  ).add_row [name, appearances  ]
+	excelFile.workbook.sheet_by_name("Titles"       ).add_row [name, titles       ]
 
-	p nameList[i]
+	p name
 	p abilities
 	p age
+	p ageNote
 	p occupation
 	p location
 	p description
