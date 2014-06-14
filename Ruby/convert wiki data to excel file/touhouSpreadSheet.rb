@@ -12,7 +12,7 @@ require 'open-uri' #build-in
 
 I_want_to_make_xls_file_with_this = true
 
-nameList = [
+NameListAry = [
 #Main Characters
 "Reimu_Hakurei",
 "Marisa_Kirisame",
@@ -164,7 +164,7 @@ nameList = [
 "Kosuzu_Motoori"
 ]
 
-gameList = [
+GameListAry = [
 "1", 
 "2", 
 "3", 
@@ -188,6 +188,11 @@ gameList = [
 "14", 
 "14.3"
 ]
+
+NameListHash = Hash.new
+for i in NameListAry do NameListHash[i] = nil end
+GameListHash = Hash.new
+for i in GameListAry do GameListHash[i] = nil end
 
 DuplicateNote = {
 	"Lunasa_Prismriver" => 0,
@@ -218,23 +223,23 @@ def separateIntoLines string
   string
 end
 
-def proofreadName name, string
+def proofreadName wb, name, string
 	string
 end
 
-def proofreadSpecies name, string
+def proofreadSpecies wb, name, string
 	return "N/A" if string == "Unknown"
 	string
 end
 
-def proofreadAbilities name, string
+def proofreadAbilities wb, name, string
 	return "N/A" if string == "Unknown"
 	return string.lines.map(&:chomp)[DuplicateNote[name]].partition(': ').last if DuplicateNote.include? name
 	return separateIntoLines string unless string.nil?
 	string
 end
 
-def proofreadAge name, string
+def proofreadAge wb, name, string
 	if string.match /\D+/
 		if string == "Unknown"
 			age  = "N/A"
@@ -251,7 +256,7 @@ def proofreadAge name, string
 	[age, note]
 end
 
-def proofreadOccupation name, string
+def proofreadOccupation wb, name, string
 	return string.lines.map(&:chomp)[DuplicateNote[name]].partition(': ').last if DuplicateNote.include? name
 	return "N/A" if string == "Unknown"
 	return "N/A" if name == "Kisume"
@@ -259,7 +264,7 @@ def proofreadOccupation name, string
 	string
 end
 
-def proofreadLocation name, string
+def proofreadLocation wb, name, string
 	return "N/A" if string == "Unknown"
 	return "Forest of Magic"                         if name == "Marisa_Kirisame"
 	return "An island in Lake of Blood"              if name == "Kurumi"
@@ -270,19 +275,22 @@ def proofreadLocation name, string
 	string
 end
 
-def proofreadDescription name, string
+def proofreadDescription wb, name, string
 	string
 end
 
-def proofreadRelationships name, string
+def proofreadRelationships wb, name, string
+	nameListDup = Hash.new
+	for 
+
 	string
 end
 
-def proofreadAppearances name, string
+def proofreadAppearances wb, name, string
 	string
 end
 
-def proofreadTitles name, string
+def proofreadTitles wb, name, string
 	string
 end
 
@@ -331,16 +339,16 @@ excelFile.workbook.add_worksheet(:name => "..."          ) { |sheet| sheet.add_r
 	                                                                                  "Age Note", 
 	                                                                                  "Occupation", 
 	                                                                                  "Location"], :widths => [21, 28, 73, 5, 70, 30, 50] }
-excelFile.workbook.add_worksheet(:name => "Description"  ) { |sheet| sheet.add_row  ["Name"] | gameList | ["Misc."] }
-excelFile.workbook.add_worksheet(:name => "Relationships") { |sheet| sheet.add_row  ["Name"] | nameList.map {|i| i.gsub /_/, ' '} | ["Misc."] }
-excelFile.workbook.add_worksheet(:name => "Appearances"  ) { |sheet| sheet.add_row  ["Name"] | gameList | ["Misc."] }
-excelFile.workbook.add_worksheet(:name => "Titles"       ) { |sheet| sheet.add_row  ["Name"] | gameList | ["Misc."] }
+excelFile.workbook.add_worksheet(:name => "Description"  ) { |sheet| sheet.add_row  ["Name"] | GameListAry | ["Misc."] }
+excelFile.workbook.add_worksheet(:name => "Relationships") { |sheet| sheet.add_row  ["Name"] | NameListAry.map {|i| i.gsub /_/, ' '} | ["Misc."] }
+excelFile.workbook.add_worksheet(:name => "Appearances"  ) { |sheet| sheet.add_row  ["Name"] | GameListAry | ["Misc."] }
+excelFile.workbook.add_worksheet(:name => "Titles"       ) { |sheet| sheet.add_row  ["Name"] | GameListAry | ["Misc."] }
 
-for i in 0...nameList.length do
+for i in 0...NameListAry.length do
 
-	page = ScreenScrapper.new "http://touhou.wikia.com/wiki/#{nameList[i]}"
+	page = ScreenScrapper.new "http://touhou.wikia.com/wiki/#{NameListAry[i]}"
 
-	name          = nameList[i].gsub /_/, ' '
+	name          = NameListAry[i].gsub /_/, ' '
 	species       = page.find       "Species"
 	abilities     = page.find       "Abilities"
 	age           = page.find       "Age"
@@ -352,16 +360,16 @@ for i in 0...nameList.length do
 	titles        = page.findInside "Titles"
 
 	#Proofreading
-	name          = proofreadName          nameList[i], name
-	species       = proofreadSpecies       nameList[i], species
-	abilities     = proofreadAbilities     nameList[i], abilities
-	age, ageNote  = proofreadAge           nameList[i], age
-	occupation    = proofreadOccupation    nameList[i], occupation
-	location      = proofreadLocation      nameList[i], location
-	description   = proofreadDescription   nameList[i], description
-	relationships = proofreadRelationships nameList[i], relationships
-	appearances   = proofreadAppearances   nameList[i], appearances
-	titles        = proofreadTitles        nameList[i], titles
+	name          = proofreadName          excelFile.workbook, NameListAry[i], name
+	species       = proofreadSpecies       excelFile.workbook, NameListAry[i], species
+	abilities     = proofreadAbilities     excelFile.workbook, NameListAry[i], abilities
+	age, ageNote  = proofreadAge           excelFile.workbook, NameListAry[i], age
+	occupation    = proofreadOccupation    excelFile.workbook, NameListAry[i], occupation
+	location      = proofreadLocation      excelFile.workbook, NameListAry[i], location
+	description   = proofreadDescription   excelFile.workbook, NameListAry[i], description
+	relationships = proofreadRelationships excelFile.workbook, NameListAry[i], relationships
+	appearances   = proofreadAppearances   excelFile.workbook, NameListAry[i], appearances
+	titles        = proofreadTitles        excelFile.workbook, NameListAry[i], titles
 
 	excelFile.workbook.sheet_by_name("..."          ).add_row [name, 
 	                                                           species, 
