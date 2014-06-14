@@ -189,7 +189,7 @@ gameList = [
 "14.3"
 ]
 
-duplicateNote = {
+DuplicateNote = {
 	"Lunasa_Prismriver" => 0,
 	"Merlin_Prismriver" => 1,
 	"Lyrica_Prismriver" => 2,
@@ -198,22 +198,93 @@ duplicateNote = {
 	"Star_Sapphire"     => 2
 }
 
-def separateByCommas string
-	counter = 0
-	for i in 0...string.length do
-		case string[i]
-		when '('; counter += 1
-		when ')'; counter -= 1
-		when ','; string.insert i + 1, "\n" if counter == 0
-		end
+def separateIntoLines string
+	unless string.nil?
+	  counter = 0
+	  string = string.chars.map do |char|
+	    output_char = char
+	    case char
+	    when '('; output_char = "\n(" if counter == 0; counter += 1
+	    when ')'; counter -= 1
+	    when ','; output_char = "\n" if counter == 0
+	    when ';'; output_char = "\n"
+	    when '.'; output_char = "\n"
+	    end
+	    output_char
+	  end.join
+	  counter = nil
+	  string.gsub! "\n ", "\n"
 	end
-	counter = nil
-	string.gsub!(",\n", "\n")
-	string.gsub!("\n ", "\n")
+  string
+end
+
+def proofreadName name, string
 	string
 end
 
+def proofreadSpecies name, string
+	return "N/A" if string == "Unknown"
+	string
+end
 
+def proofreadAbilities name, string
+	return "N/A" if string == "Unknown"
+	return string.lines.map(&:chomp)[DuplicateNote[name]].partition(': ').last if DuplicateNote.include? name
+	return separateIntoLines string unless string.nil?
+	string
+end
+
+def proofreadAge name, string
+	if string.match /\D+/
+		if string == "Unknown"
+			age  = "N/A"
+			note = "N/A"
+		else
+			age  = string.gsub(',', '')[/\d+/]
+			note = separateIntoLines string
+		end
+	else		
+		age  = string
+		note = "N/A"
+	end
+	age = "N/A" if age.nil?
+	[age, note]
+end
+
+def proofreadOccupation name, string
+	return string.lines.map(&:chomp)[DuplicateNote[name]].partition(': ').last if DuplicateNote.include? name
+	return "N/A" if string == "Unknown"
+	return "N/A" if name == "Kisume"
+	return separateIntoLines string unless string.nil?
+	string
+end
+
+def proofreadLocation name, string
+	return "N/A" if string == "Unknown"
+	return "Forest of Magic"                         if name == "Marisa_Kirisame"
+	return "An island in Lake of Blood"              if name == "Kurumi"
+	return "Forest near Human Village"               if name == "Mystia_Lorelei"
+	return "Bamboo Forest of The Lost"               if name == "Fujiwara_no_Mokou"
+	return "Sanzu River\nHell"                       if name == "Komachi_Onozuka"
+	return "Muenzuka\nTemple of Myouren on occasion" if name == "Nazrin"
+	string
+end
+
+def proofreadDescription name, string
+	string
+end
+
+def proofreadRelationships name, string
+	string
+end
+
+def proofreadAppearances name, string
+	string
+end
+
+def proofreadTitles name, string
+	string
+end
 
 class ScreenScrapper
 
@@ -251,23 +322,6 @@ class ScreenScrapper
 
 end
 
-def checkAge string
-	if string.match /\D+/
-		if string == "Unknown"
-			age  = "N/A"
-			note = "N/A"
-		else
-			age  = string.gsub(',', '')[/\d+/]
-			note = string
-		end
-	else		
-		age  = string
-		note = "N/A"
-	end
-	age = "N/A" if age.nil?
-	return [age, note]
-end
-
 excelFile = Axlsx::Package.new
 
 excelFile.workbook.add_worksheet(:name => "..."          ) { |sheet| sheet.add_row ["Name", 
@@ -276,9 +330,9 @@ excelFile.workbook.add_worksheet(:name => "..."          ) { |sheet| sheet.add_r
 	                                                                                  "Age",
 	                                                                                  "Age Note", 
 	                                                                                  "Occupation", 
-	                                                                                  "Location"] }
+	                                                                                  "Location"], :widths => [21, 28, 73, 5, 70, 30, 50] }
 excelFile.workbook.add_worksheet(:name => "Description"  ) { |sheet| sheet.add_row  ["Name"] | gameList | ["Misc."] }
-excelFile.workbook.add_worksheet(:name => "Relationships") { |sheet| sheet.add_row  ["Name"] | nameList | ["Misc."] }
+excelFile.workbook.add_worksheet(:name => "Relationships") { |sheet| sheet.add_row  ["Name"] | nameList.map {|i| i.gsub /_/, ' '} | ["Misc."] }
 excelFile.workbook.add_worksheet(:name => "Appearances"  ) { |sheet| sheet.add_row  ["Name"] | gameList | ["Misc."] }
 excelFile.workbook.add_worksheet(:name => "Titles"       ) { |sheet| sheet.add_row  ["Name"] | gameList | ["Misc."] }
 
@@ -286,7 +340,7 @@ for i in 0...nameList.length do
 
 	page = ScreenScrapper.new "http://touhou.wikia.com/wiki/#{nameList[i]}"
 
-	name          = nameList[i].gsub(/_/, ' ')
+	name          = nameList[i].gsub /_/, ' '
 	species       = page.find       "Species"
 	abilities     = page.find       "Abilities"
 	age           = page.find       "Age"
@@ -297,16 +351,17 @@ for i in 0...nameList.length do
 	appearances   = page.findInside "Appearances"
 	titles        = page.findInside "Titles"
 
-	# Divide abilities into multiple lines
-	abilities = separateByCommas abilities unless abilities.nil?
-
-  # Check For Duplication
-	if duplicateNote.include? nameList[i]
-		abilities  =  abilities.lines.map(&:chomp)[duplicateNote[nameList[i]]].partition(': ').last
-		occupation = occupation.lines.map(&:chomp)[duplicateNote[nameList[i]]].partition(': ').last
-	end
-
-	age, ageNote = checkAge age
+	#Proofreading
+	name          = proofreadName          nameList[i], name
+	species       = proofreadSpecies       nameList[i], species
+	abilities     = proofreadAbilities     nameList[i], abilities
+	age, ageNote  = proofreadAge           nameList[i], age
+	occupation    = proofreadOccupation    nameList[i], occupation
+	location      = proofreadLocation      nameList[i], location
+	description   = proofreadDescription   nameList[i], description
+	relationships = proofreadRelationships nameList[i], relationships
+	appearances   = proofreadAppearances   nameList[i], appearances
+	titles        = proofreadTitles        nameList[i], titles
 
 	excelFile.workbook.sheet_by_name("..."          ).add_row [name, 
 	                                                           species, 
@@ -314,7 +369,7 @@ for i in 0...nameList.length do
 	                                                           age,
 	                                                           ageNote, 
 	                                                           occupation, 
-	                                                           location]
+	                                                           location], :widths => [21, 28, 73, 5, 70, 30, 50]
 
 	excelFile.workbook.sheet_by_name("Description"  ).add_row [name, description  ]
 	excelFile.workbook.sheet_by_name("Relationships").add_row [name, relationships]
@@ -332,6 +387,17 @@ for i in 0...nameList.length do
 	p appearances
 	p titles
 
+end
+
+#Pane / Freeze / Frozen The Column and Row Headers
+for i in ["...", "Description", "Relationships", "Appearances", "Titles"] do
+	excelFile.workbook.sheet_by_name(i).sheet_view.pane do |pane|
+		pane.top_left_cell = "B2"
+		pane.state = :frozen_split
+		pane.y_split = 1
+		pane.x_split = 1
+		pane.active_pane = :bottom_right
+	end
 end
 
 excelFile.use_shared_strings = true
