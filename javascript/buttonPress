@@ -1,0 +1,2 @@
+for (var i = 1; i < document.body.getElementsByClassName("farm_icon_a").length; i++) 
+  document.body.getElementsByClassName("farm_icon_a")[i].click()
