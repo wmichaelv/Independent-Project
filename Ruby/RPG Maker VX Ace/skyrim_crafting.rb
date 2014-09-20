@@ -1,11 +1,8 @@
-class Game_Interpreter                                      #Ignore
-  attr_accessor :map_id, :event_id, :list, :index, :fiber   #Ignore
-end                                                         #Ignore
 #==============================================================================
 #
 # Michael Skyrym Crafting + Extended
-# Last Updated: 2014.03.02
-# V 1.04
+# Last Updated: 2014.09.20
+# V 1.05
 # Requirement: RPG Maker VX Ace
 #             -Knowledge of 'how to use script and notetag'
 #
@@ -191,212 +188,78 @@ Cannot_Make = "Not Enough Ingredient"
 #==============================================================================
 
 #==============================================================================
-# Scene_Alchemy Success Rate: Edit At Risk
+# Scene Crafting
 #==============================================================================
+class Scene_Crafting < Scene_MenuBase 
+  attr_reader :interpreter
+end
+
+#==============================================================================
+# Window_Interpreter_Message
+#==============================================================================
+class Window_Interpreter_Message < Window_Message
+  def initialize
+    super
+    rand_z           = 300
+    self.z           = rand_z
+    @gold_window.z   = rand_z
+    @item_window.z   = rand_z
+    @number_window.z = rand_z
+    @choice_window.z = rand_z
+  end
+end
 
 if SCENARIO_2_SWITCH == false #Run first scenario
 
-  class Scene_Alchemy < Scene_MenuBase
-
-    def success_rate
-
-      if rand(100) <= ((Variables_ID_Alc) ? $game_variables[Variables_ID_Alc] : 100)
-        ce = $data_common_events[Suc_EVENT_ID_Alc] unless Suc_EVENT_ID_Alc.nil?
-        if ce
-          c = Game_Interpreter.new
-          c.clear
-          c.map_id = $game_map.map_id
-          c.event_id = 0
-          c.list = ce.list
-          c.create_fiber
-          c.wait_for_message
-          while c.list[c.index] do
-            c.execute_command
-            c.index += 1
-          end
-          c.fiber = nil
-        end
+  class Scene_Crafting < Scene_MenuBase
+    def success_rate(var_ID, suc_ID, fai_ID)
+      if rand(100) <= (var_ID ? $game_variables[var_ID] : 100)
+        @interpreter.list = $data_common_events[suc_ID].list unless suc_ID.nil?
         return true
       else
-        ce = $data_common_events[Fai_EVENT_ID_Alc] unless Fai_EVENT_ID_Alc.nil?
-        if ce
-          c = Game_Interpreter.new
-          c.clear
-          c.map_id = $game_map.map_id
-          c.event_id = 0
-          c.list = ce.list
-          c.create_fiber
-          c.wait_for_message
-          while c.list[c.index] do
-            c.execute_command
-            c.index += 1
-          end
-          c.fiber = nil
-        end
+        @interpreter.list = $data_common_events[fai_ID].list unless fai_ID.nil?
         return false
       end
     end
   end
-
-  class Scene_BlackSmith < Scene_MenuBase
-
+  class Scene_Alchemy < Scene_Crafting
     def success_rate
-
-      if rand(100) <= ((Variables_ID_BS) ? $game_variables[Variables_ID_BS] : 100)
-        ce = $data_common_events[Suc_EVENT_ID_BS] unless Suc_EVENT_ID_BS.nil?
-        if ce
-          c = Game_Interpreter.new
-          c.clear
-          c.map_id = $game_map.map_id
-          c.event_id = 0
-          c.list = ce.list
-          c.create_fiber
-          c.wait_for_message
-          while c.list[c.index] do
-            c.execute_command
-            c.index += 1
-          end
-          c.fiber = nil
-        end
-        return true
-      else
-        ce = $data_common_events[Fai_EVENT_ID_BS] unless Fai_EVENT_ID_BS.nil?
-        if ce
-          c = Game_Interpreter.new
-          c.clear
-          c.map_id = $game_map.map_id
-          c.event_id = 0
-          c.list = ce.list
-          c.create_fiber
-          c.wait_for_message
-          while c.list[c.index] do
-            c.execute_command
-            c.index += 1
-          end
-          c.fiber = nil
-        end
-        return false
-      end
+      super(Variables_ID_Alc,Suc_EVENT_ID_Alc,Fai_EVENT_ID_Alc)
     end
   end
-
-  class Scene_Cooking < Scene_MenuBase
-
+  class Scene_BlackSmith < Scene_Crafting
     def success_rate
-
-      if rand(100) <= ((Variables_ID_CK) ? $game_variables[Variables_ID_CK] : 100)
-        ce = $data_common_events[Suc_EVENT_ID_CK] unless Suc_EVENT_ID_CK.nil?
-        if ce
-          c = Game_Interpreter.new
-          c.clear
-          c.map_id = $game_map.map_id
-          c.event_id = 0
-          c.list = ce.list
-          c.create_fiber
-          c.wait_for_message
-          while c.list[c.index] do
-            c.execute_command
-            c.index += 1
-          end
-          c.fiber = nil
-        end
-        return true
-      else
-        ce = $data_common_events[Fai_EVENT_ID_CK] unless Fai_EVENT_ID_CK.nil?
-        if ce
-          c = Game_Interpreter.new
-          c.clear
-          c.map_id = $game_map.map_id
-          c.event_id = 0
-          c.list = ce.list
-          c.create_fiber
-          c.wait_for_message
-          while c.list[c.index] do
-            c.execute_command
-            c.index += 1
-          end
-          c.fiber = nil
-        end
-        return false
-      end
+      super(Variables_ID_BS, Suc_EVENT_ID_BS, Fai_EVENT_ID_BS)
     end
   end
-
+  class Scene_Cooking < Scene_Crafting
+    def success_rate
+      super(Variables_ID_CK, Suc_EVENT_ID_CK, Fai_EVENT_ID_CK)
+    end
+  end
 
 else #Run second scenario
 
-  class Scene_Alchemy < Scene_MenuBase
-
-    def success_rate
-
-      $game_switches[SWITCH_ID_Alc] = 
-      rand(100) <= ((Variables_ID_Alc) ? $game_variables[Variables_ID_Alc] : 100)
-      ce = $data_common_events[EVENT_ID_Alc] unless EVENT_ID_Alc.nil?
-      if ce
-        c = Game_Interpreter.new
-        c.clear
-        c.map_id = $game_map.map_id
-        c.event_id = 0
-        c.list = ce.list
-        c.create_fiber
-        c.wait_for_message
-        while c.list[c.index] do
-          c.execute_command
-          c.index += 1
-        end
-        c.fiber = nil
-      end
-      $game_switches[SWITCH_ID_Alc]
+  class Scene_Crafting < Scene_MenuBase
+    def success_rate(switch_ID, var_ID, event_ID)
+      $game_switches[switch_ID] = rand(100) <= (var_ID ? $game_variables[var_ID] : 100)
+      @interpreter.list = $data_common_events[event_ID].list
+      return $game_switches[switch_ID]
     end
   end
-
-  class Scene_BlackSmith < Scene_MenuBase
-
+  class Scene_Alchemy < Scene_Crafting
     def success_rate
-
-      $game_switches[SWITCH_ID_BS] = 
-      rand(100) <= ((Variables_ID_BS) ? $game_variables[Variables_ID_BS] : 100)
-      ce = $data_common_events[EVENT_ID_BS] unless EVENT_ID_BS.nil?
-      if ce
-        c = Game_Interpreter.new
-        c.clear
-        c.map_id = $game_map.map_id
-        c.event_id = 0
-        c.list = ce.list
-        c.create_fiber
-        c.wait_for_message
-        while c.list[c.index] do
-          c.execute_command
-          c.index += 1
-        end
-        c.fiber = nil
-      end
-      $game_switches[SWITCH_ID_BS]
+      super(SWITCH_ID_Alc, Variables_ID_Alc, EVENT_ID_Alc)
     end
   end
-
-  class Scene_Cooking < Scene_MenuBase
-
+  class Scene_BlackSmith < Scene_Crafting
     def success_rate
-
-      $game_switches[SWITCH_ID_CK] = 
-      rand(100) <= ((Variables_ID_CK) ? $game_variables[Variables_ID_CK] : 100)
-      ce = $data_common_events[EVENT_ID_CK] unless EVENT_ID_CK.nil?
-      if ce
-        c = Game_Interpreter.new
-        c.clear
-        c.map_id = $game_map.map_id
-        c.event_id = 0
-        c.list = ce.list
-        c.create_fiber
-        c.wait_for_message
-        while c.list[c.index] do
-          c.execute_command
-          c.index += 1
-        end
-        c.fiber = nil
-      end
-      $game_switches[SWITCH_ID_CK]
+      super(SWITCH_ID_BS, Variables_ID_BS, EVENT_ID_BS)
+    end
+  end
+  class Scene_Cooking < Scene_Crafting
+    def success_rate
+      super(SWITCH_ID_CK, Variables_ID_CK, EVENT_ID_CK)
     end
   end
 
@@ -406,6 +269,7 @@ end
 # Bio
 #==============================================================================
 #
+# 2014.09.20 - V 1.05  Add parent class to trim down the script
 # 2014.03.02 - V 1.04  Expand The Script Into Crafting [ Add BlackSmith + Cooking]
 #                      Introduce Level Of Appearance
 # 2014.02.27 - V 1.03  GUI Update
@@ -658,19 +522,33 @@ class Game_Cooking
 end
 
 #==============================================================================
-# Scene_Alchemy
+# Scene Crafting
 #==============================================================================
-
-class Scene_Alchemy < Scene_MenuBase
-  def start
-    super
-    create_help_window; create_product_window
-    create_ingredient_window; create_confirm_window
-    @help_window.x = 0; @help_window.y = 344
-    @help_window.width = 544; @help_window.height = 72
+class Scene_Crafting < Scene_MenuBase 
+  attr_accessor :interpreter
+  attr_accessor :global
+  def start(ptype, glob)
+    super()
+    @global = glob
+    create_interpreter
+    create_interpreter_message_window
+    create_help_window
+    create_product_window(ptype)
+    create_ingredient_window
+    create_confirm_window
+    @help_window.x = 0
+    @help_window.y = 344
+    @help_window.width = 544
+    @help_window.height = 72
   end
-  def create_product_window
-    @pw = Window_Product.new(0,0,0)
+  def create_interpreter
+    @interpreter = Game_Interpreter.new
+  end
+  def create_interpreter_message_window
+    @message_window = Window_Interpreter_Message.new
+  end
+  def create_product_window(ptype)
+    @pw = Window_Product.new(0,0, ptype)
     @pw.set_handler(:product,  method(:selectIngredient))
     @pw.set_handler(:cancel,   method(:return_scene))
     @pw.help_window = @help_window
@@ -678,7 +556,7 @@ class Scene_Alchemy < Scene_MenuBase
     @pw.refresh
   end
   def selectIngredient
-    if $ga.pr[@pw.in].cmake
+    if @global.pr[@pw.in].cmake
       @pw.deactivate; @iw.activate
       @iw.sl; @sui = Array.new
     else
@@ -694,49 +572,69 @@ class Scene_Alchemy < Scene_MenuBase
     @iw.deactivate
   end
   def ingredientSelect(i)
-    @usedIngr = i; @sui << i
-    @iw.deactivate; @cw.activate
-    @cw.show; @cw.open
+    @usedIngr = i
+    @sui << i
+    @iw.deactivate
+    @confirm_window.activate
+    @confirm_window.show
+    @confirm_window.open
   end
   def returnProduct
-    $ga.rU(@pw.in); $ga.rR(@pw.in)
-    @pw.update; @iw.refresh; @iw.sl;
-    @iw.deactivate; @pw.activate; end
+    @global.rU(@pw.in)
+    @global.rR(@pw.in)
+    @pw.update
+    @iw.refresh
+    @iw.sl
+    @iw.deactivate
+    @pw.activate
+  end
   def create_confirm_window
-    @cw = Window_Confirm.new(172, 208)
-    @cw.width = 200
-    @cw.set_handler(:Confirm,    method(:confirm))
-    @cw.set_handler(:Cancel,     method(:cancel))
-    @cw.set_handler(:cancel,     method(:cancel))
-    @cw.z = 200; @cw.deactivate
-    @cw.hide; @cw.close
+    @confirm_window = Window_Confirm.new(172, 208)
+    @confirm_window.width = 200
+    @confirm_window.set_handler(:Confirm,    method(:confirm))
+    @confirm_window.set_handler(:Cancel,     method(:cancel))
+    @confirm_window.set_handler(:cancel,     method(:cancel))
+    @confirm_window.z = 200
+    @confirm_window.deactivate
+    @confirm_window.hide
+    @confirm_window.close
   end
   def confirm
     @iw.data[@usedIngr].used[@iw.ika[@usedIngr]] = true
-    $ga.pr[@pw.in].ingr[@iw.ika[@usedIngr]][0] -= 1
-    @cw.deactivate; @cw.hide; @cw.close
-    if $ga.pr[@pw.in].cF
-      confirm_alchemy
-      $ga.rU(@pw.in); $ga.rR(@pw.in)
-      @iw.refresh;
-      @pw.update;
-      if $ga.pr[@pw.in].cmake
-        @iw.activate; @iw.sl
+    @global.pr[@pw.in].ingr[@iw.ika[@usedIngr]][0] -= 1
+    @confirm_window.deactivate
+    @confirm_window.hide
+    @confirm_window.close
+    if @global.pr[@pw.in].cF
+      confirm_crafting
+      @global.rU(@pw.in)
+      @global.rR(@pw.in)
+      @iw.refresh
+      @pw.update
+      if @global.pr[@pw.in].cmake
+        @iw.activate
+        @iw.sl
       else
         @pw.activate 
       end
     else
-      @iw.refresh; @iw.activate; @iw.sl
+      @iw.refresh
+      @iw.activate
+      @iw.sl
     end
   end
   def confirm_alchemy
     @sui.each do |i|
-      $game_party.gain_item(@iw.data[i].cb, -$ga.pr[@pw.in].ingr[@iw.ika[i]][1])
+      $game_party.gain_item(@iw.data[i].cb, -@global.pr[@pw.in].ingr[@iw.ika[i]][1])
     end
-    (success_rate) ? ($game_party.gain_item($ga.pr[@pw.in].cb,1); sm) : fm
+    (success_rate) ? ($game_party.gain_item(@global.pr[@pw.in].cb,1); sm) : fm
   end
   def cancel
-    @iw.activate; @iw.sl; @cw.deactivate; @cw.hide; @cw.close
+    @iw.activate
+    @iw.sl
+    @confirm_window.deactivate
+    @confirm_window.hide
+    @confirm_window.close
   end
   def cs
     w = Window_Message.new; Sound.play_buzzer; b = Bitmap.new(w.text_size(Cannot_Make).width + 2,60)
@@ -758,6 +656,23 @@ class Scene_Alchemy < Scene_MenuBase
     w.width = w.text_size(Fail_Message).width + 32; w.height = 100; w.visible = true; w.openness = 255
     w.x = 100; w.y = 180; w.back_opacity = 255; w.opacity = 255
     w.update; Graphics.wait(70); b.dispose; w.dispose
+  end
+  def update
+    super()
+    update_interpreter
+  end
+  def update_interpreter
+    loop { @interpreter.running? ? @interpreter.update : return }
+  end
+end
+
+#==============================================================================
+# Scene_Alchemy
+#==============================================================================
+
+class Scene_Alchemy < Scene_Crafting
+  def start
+    super(0, $ga) 
   end
 end
 
@@ -765,103 +680,9 @@ end
 # Scene_BlackSmith
 #==============================================================================
 
-class Scene_BlackSmith < Scene_MenuBase
+class Scene_BlackSmith < Scene_Crafting
   def start
-    super
-    create_help_window; create_product_window
-    create_ingredient_window; create_confirm_window
-    @help_window.x = 0; @help_window.y = 344
-    @help_window.width = 544; @help_window.height = 72
-  end
-  def create_product_window
-    @pw = Window_Product.new(0,0,1)
-    @pw.set_handler(:product,  method(:selectIngredient))
-    @pw.set_handler(:cancel,   method(:return_scene))
-    @pw.help_window = @help_window
-    @pw.activate
-    @pw.refresh
-  end
-  def selectIngredient
-    if $gb.pr[@pw.in].cmake
-      @pw.deactivate; @iw.activate
-      @iw.sl; @sui = Array.new
-    else
-      cs; @pw.activate
-    end
-  end
-  def create_ingredient_window
-    @iw = Window_Ingredient.new(48,0)
-    @iw.sh(:ok,     method(:ingredientSelect))
-    @iw.sh(:cancel, method(:returnProduct))
-    @iw.hw = @help_window
-    @pw.iw = @iw
-    @iw.deactivate
-  end
-  def ingredientSelect(i)
-    @usedIngr = i; @sui << i
-    @iw.deactivate; @cw.activate
-    @cw.show; @cw.open
-  end
-  def returnProduct
-    $gb.rU(@pw.in); $gb.rR(@pw.in)
-    @pw.update; @iw.refresh; @iw.sl;
-    @iw.deactivate; @pw.activate; end
-  def create_confirm_window
-    @cw = Window_Confirm.new(172, 208)
-    @cw.width = 200
-    @cw.set_handler(:Confirm,    method(:confirm))
-    @cw.set_handler(:Cancel,     method(:cancel))
-    @cw.set_handler(:cancel,     method(:cancel))
-    @cw.z = 200; @cw.deactivate
-    @cw.hide; @cw.close
-  end
-  def confirm
-    @iw.data[@usedIngr].used[@iw.ika[@usedIngr]] = true
-    $gb.pr[@pw.in].ingr[@iw.ika[@usedIngr]][0] -= 1
-    @cw.deactivate; @cw.hide; @cw.close
-    if $gb.pr[@pw.in].cF
-      confirm_blacksmith
-      $gb.rU(@pw.in); $gb.rR(@pw.in)
-      @iw.refresh;
-      @pw.update;
-      if $gb.pr[@pw.in].cmake
-        @iw.activate; @iw.sl
-      else
-        @pw.activate 
-      end
-    else
-      @iw.refresh; @iw.activate; @iw.sl
-    end
-  end
-  def confirm_blacksmith
-    @sui.each do |i|
-      $game_party.gain_item(@iw.data[i].cb, -$gb.pr[@pw.in].ingr[@iw.ika[i]][1])
-    end
-    (success_rate) ? ($game_party.gain_item($gb.pr[@pw.in].cb,1); sm) : fm
-  end
-  def cancel
-    @iw.activate; @iw.sl; @cw.deactivate; @cw.hide; @cw.close
-  end
-  def cs
-    w = Window_Message.new; Sound.play_buzzer; b = Bitmap.new(w.text_size(Cannot_Make).width + 2,60)
-    b.draw_text(0, 20,w.text_size(Cannot_Make).width + 2, 40, Cannot_Make); w.contents = b
-    w.width = w.text_size(Cannot_Make).width + 32; w.height = 100; w.visible = true; w.openness = 255
-    w.x = 100; w.y = 180; w.back_opacity = 255; w.opacity = 255
-    w.update; Graphics.wait(70); b.dispose; w.dispose
-  end
-  def sm
-    w = Window_Message.new; Sound.play_buzzer; b = Bitmap.new(w.text_size(Success_Message).width + 2,60)
-    b.draw_text(0, 20,w.text_size(Success_Message).width + 2, 40, Success_Message); w.contents = b
-    w.width = w.text_size(Success_Message).width + 32; w.height = 100; w.visible = true; w.openness = 255
-    w.x = 100; w.y = 180; w.back_opacity = 255; w.opacity = 255
-    w.update; Graphics.wait(70); b.dispose; w.dispose
-  end
-  def fm
-    w = Window_Message.new; Sound.play_buzzer; b = Bitmap.new(w.text_size(Fail_Message).width + 2,60)
-    b.draw_text(0, 20,w.text_size(Fail_Message).width + 2, 40, Fail_Message); w.contents = b
-    w.width = w.text_size(Fail_Message).width + 32; w.height = 100; w.visible = true; w.openness = 255
-    w.x = 100; w.y = 180; w.back_opacity = 255; w.opacity = 255
-    w.update; Graphics.wait(70); b.dispose; w.dispose
+    super(1, $gb) 
   end
 end
 
@@ -869,103 +690,9 @@ end
 # Scene_Cooking
 #==============================================================================
 
-class Scene_Cooking < Scene_MenuBase
+class Scene_Cooking < Scene_Crafting
   def start
-    super
-    create_help_window; create_product_window
-    create_ingredient_window; create_confirm_window
-    @help_window.x = 0; @help_window.y = 344
-    @help_window.width = 544; @help_window.height = 72
-  end
-  def create_product_window
-    @pw = Window_Product.new(0,0,2)
-    @pw.set_handler(:product,  method(:selectIngredient))
-    @pw.set_handler(:cancel,   method(:return_scene))
-    @pw.help_window = @help_window
-    @pw.activate
-    @pw.refresh
-  end
-  def selectIngredient
-    if $gc.pr[@pw.in].cmake
-      @pw.deactivate; @iw.activate
-      @iw.sl; @sui = Array.new
-    else
-      cs; @pw.activate
-    end
-  end
-  def create_ingredient_window
-    @iw = Window_Ingredient.new(48,0)
-    @iw.sh(:ok,     method(:ingredientSelect))
-    @iw.sh(:cancel, method(:returnProduct))
-    @iw.hw = @help_window
-    @pw.iw = @iw
-    @iw.deactivate
-  end
-  def ingredientSelect(i)
-    @usedIngr = i; @sui << i
-    @iw.deactivate; @cw.activate
-    @cw.show; @cw.open
-  end
-  def returnProduct
-    $gc.rU(@pw.in); $gc.rR(@pw.in)
-    @pw.update; @iw.refresh; @iw.sl;
-    @iw.deactivate; @pw.activate; end
-  def create_confirm_window
-    @cw = Window_Confirm.new(172, 208)
-    @cw.width = 200
-    @cw.set_handler(:Confirm,    method(:confirm))
-    @cw.set_handler(:Cancel,     method(:cancel))
-    @cw.set_handler(:cancel,     method(:cancel))
-    @cw.z = 200; @cw.deactivate
-    @cw.hide; @cw.close
-  end
-  def confirm
-    @iw.data[@usedIngr].used[@iw.ika[@usedIngr]] = true
-    $gc.pr[@pw.in].ingr[@iw.ika[@usedIngr]][0] -= 1
-    @cw.deactivate; @cw.hide; @cw.close
-    if $gc.pr[@pw.in].cF
-      confirm_cooking
-      $gc.rU(@pw.in); $gc.rR(@pw.in)
-      @iw.refresh;
-      @pw.update;
-      if $gc.pr[@pw.in].cmake
-        @iw.activate; @iw.sl
-      else
-        @pw.activate 
-      end
-    else
-      @iw.refresh; @iw.activate; @iw.sl
-    end
-  end
-  def confirm_cooking
-    @sui.each do |i|
-      $game_party.gain_item(@iw.data[i].cb, -$gc.pr[@pw.in].ingr[@iw.ika[i]][1])
-    end
-    (success_rate) ? ($game_party.gain_item($gc.pr[@pw.in].cb,1); sm) : fm
-  end
-  def cancel
-    @iw.activate; @iw.sl; @cw.deactivate; @cw.hide; @cw.close
-  end
-  def cs
-    w = Window_Message.new; Sound.play_buzzer; b = Bitmap.new(w.text_size(Cannot_Make).width + 2,60)
-    b.draw_text(0, 20,w.text_size(Cannot_Make).width + 2, 40, Cannot_Make); w.contents = b
-    w.width = w.text_size(Cannot_Make).width + 32; w.height = 100; w.visible = true; w.openness = 255
-    w.x = 100; w.y = 180; w.back_opacity = 255; w.opacity = 255
-    w.update; Graphics.wait(70); b.dispose; w.dispose
-  end
-  def sm
-    w = Window_Message.new; Sound.play_buzzer; b = Bitmap.new(w.text_size(Success_Message).width + 2,60)
-    b.draw_text(0, 20,w.text_size(Success_Message).width + 2, 40, Success_Message); w.contents = b
-    w.width = w.text_size(Success_Message).width + 32; w.height = 100; w.visible = true; w.openness = 255
-    w.x = 100; w.y = 180; w.back_opacity = 255; w.opacity = 255
-    w.update; Graphics.wait(70); b.dispose; w.dispose
-  end
-  def fm
-    w = Window_Message.new; Sound.play_buzzer; b = Bitmap.new(w.text_size(Fail_Message).width + 2,60)
-    b.draw_text(0, 20,w.text_size(Fail_Message).width + 2, 40, Fail_Message); w.contents = b
-    w.width = w.text_size(Fail_Message).width + 32; w.height = 100; w.visible = true; w.openness = 255
-    w.x = 100; w.y = 180; w.back_opacity = 255; w.opacity = 255
-    w.update; Graphics.wait(70); b.dispose; w.dispose
+    super(2, $gc) 
   end
 end
 
@@ -975,16 +702,17 @@ end
 
 class Window_Product < Window_Command
 
-  attr_accessor :iw #Ingredient Window
-  attr_accessor :in #Index Number
+  attr_accessor :iw    #Ingredient Window
+  attr_accessor :in    #Index Number
+  attr_accessor :ptype #Product Type
 
   def initialize(x, y, i)
+    @ptype = i
     super(x, y)
-    ptype = i
   end
 
   def make_command_list
-    case ptype
+    case @ptype
     when 0; $ga.pr.each do |i| add_command(i.name, :product) end
     when 1; $gb.pr.each do |i| add_command(i.name, :product) end
     when 2; $gc.pr.each do |i| add_command(i.name, :product) end 
@@ -993,7 +721,7 @@ class Window_Product < Window_Command
   def window_width; 48 end
   def window_height; 344 end
   def item; 
-    case ptype
+    case @ptype
     when 0; $ga.pr && index >= 0 ? $ga.pr[index] : nil 
     when 1; $gb.pr && index >= 0 ? $gb.pr[index] : nil 
     when 2; $gc.pr && index >= 0 ? $gc.pr[index] : nil 
@@ -1002,7 +730,7 @@ class Window_Product < Window_Command
   def select_last; select(0) end
   def update
     super
-    case pytpe
+    case @pytpe
     when 0; @iw.c = $ga.pr[index] if @iw
     when 1; @iw.c = $gb.pr[index] if @iw
     when 2; @iw.c = $gc.pr[index] if @iw
@@ -1014,7 +742,7 @@ class Window_Product < Window_Command
   def update_help; @help_window.set_item(item) end
   def refresh; super; checkEnable end
   def checkEnable(k = nil)
-    case ptype
+    case @ptype
     when 0; $ga.pr.each do |i| $ga.checkCanMake?(i) end
     when 1; $gb.pr.each do |i| $gb.checkCanMake?(i) end
     when 2; $gc.pr.each do |i| $gc.checkCanMake?(i) end
